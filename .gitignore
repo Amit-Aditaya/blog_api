@@ -1,0 +1,12 @@
+# Virtual environment
+test_env/
+venv/
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+
+# Local files
+blog.db
+test.env
