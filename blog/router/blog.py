@@ -11,8 +11,11 @@ router = APIRouter()
 
 
 @router.post('/blog', tags=['blogs'])
-def create(request : schemas.Blog, db : Session = Depends(get_db), current_user: schemas.User = Depends(oauth2.get_current_user)):
-    new_blog = models.Blog(title = request.title, body = request.body, user_id= 1)
+def create(request : schemas.Blog, db : Session = Depends(get_db), current_user: schemas.User = Depends(oauth2.get_current_user)):    
+    user = db.query(models.User).filter(models.User.id == request.user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'user with id {id} not found')    
+    new_blog = models.Blog(title = request.title, body = request.body, user_id= request.user_id)
     db.add(new_blog)
     db.commit()
     db.refresh(new_blog)

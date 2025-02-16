@@ -10,3 +10,4 @@ __pycache__/
 # Local files
 blog.db
 test.env
+todo.txt

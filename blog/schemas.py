@@ -11,6 +11,7 @@ class User(BaseModel):
 class Blog(BaseModel):
     title : str
     body : str
+    user_id : int
    # creator: ShowUser
 
 class ShowUser(BaseModel):
