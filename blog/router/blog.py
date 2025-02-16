@@ -1,5 +1,6 @@
 from fastapi import APIRouter
-from .. import schemas, models
+from .. import schemas
+from ..model import blog_model
 from fastapi import Depends, status, Response, HTTPException
 from sqlalchemy.orm import Session
 from ..database import get_db
@@ -12,10 +13,10 @@ router = APIRouter()
 
 @router.post('/blog', tags=['blogs'])
 def create(request : schemas.Blog, db : Session = Depends(get_db), current_user: schemas.User = Depends(oauth2.get_current_user)):    
-    user = db.query(models.User).filter(models.User.id == request.user_id).first()
+    user = db.query(blog_model.User).filter(blog_model.User.id == request.user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'user with id {id} not found')    
-    new_blog = models.Blog(title = request.title, body = request.body, user_id= request.user_id)
+    new_blog = blog_model.Blog(title = request.title, body = request.body, user_id= request.user_id)
     db.add(new_blog)
     db.commit()
     db.refresh(new_blog)
@@ -34,7 +35,7 @@ def get_one(id : int, response = Response,  db : Session = Depends(get_db), curr
 
 @router.delete('/blog/{id}', status_code=status.HTTP_204_NO_CONTENT,tags=['blogs'])
 def delete(id : int, db : Session = Depends(get_db), current_user: schemas.User = Depends(oauth2.get_current_user)):
-    blog = db.query(models.Blog).filter(models.Blog.id == id).delete(synchronize_session=False)
+    blog = db.query(blog_model.Blog).filter(blog_model.Blog.id == id).delete(synchronize_session=False)
     db.commit()
     if not blog:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'blog with id {id} not found')
@@ -42,7 +43,7 @@ def delete(id : int, db : Session = Depends(get_db), current_user: schemas.User 
 
 @router.put('/blog/{id}', status_code=status.HTTP_202_ACCEPTED,tags=['blogs'])
 def update(id : int, request : schemas.Blog, db : Session = Depends(get_db), current_user: schemas.User = Depends(oauth2.get_current_user)): 
-   blog =  db.query(models.Blog).filter(models.Blog.id == id)
+   blog =  db.query(blog_model.Blog).filter(blog_model.Blog.id == id)
    if not blog.first():
        raise HTTPException (status_code= status.HTTP_404_NOT_FOUND, detail= f'{id} not found')   
    blog.update(request.dict())

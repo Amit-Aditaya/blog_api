@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware  # Add this line
-from . import models
+#from . import models
+from .model import user_model, blog_model
 from .database import engine
 from .router import blog, user, authentication
 import os  # Add this line for Render port configuration
@@ -16,7 +17,8 @@ app.add_middleware(
 )
 
 # Create database tables
-models.Base.metadata.create_all(bind=engine)
+user_model.Base.metadata.create_all(bind=engine)
+blog_model.Base.metadata.create_all(bind=engine)
 
 # Include routers
 app.include_router(blog.router)
