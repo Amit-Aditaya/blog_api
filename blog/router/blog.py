@@ -8,12 +8,13 @@ from ..repository import blog_repository
 from .. import oauth2
 
 
+
 router = APIRouter()
 
 
 @router.post('/blog', tags=['blogs'])
 def create(request : schemas.Blog, db : Session = Depends(get_db), current_user: schemas.User = Depends(oauth2.get_current_user)):    
-    user = db.query(blog_model.User).filter(blog_model.User.id == request.user_id).first()
+    user = db.query(blog_model.Blog).filter(blog_model.Blog.user_id == request.user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'user with id {id} not found')    
     new_blog = blog_model.Blog(title = request.title, body = request.body, user_id= request.user_id)
