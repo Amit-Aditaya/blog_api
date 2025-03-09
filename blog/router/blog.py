@@ -14,14 +14,7 @@ router = APIRouter()
 
 @router.post('/blog', tags=['blogs'])
 def create(request: schemas.Blog, db: Session = Depends(get_db), current_user: schemas.User = Depends(oauth2.get_current_user)):
-    user = db.query(user_model.User).filter(user_model.User.id == request.user_id).first()
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'user with id {request.user_id} not found')
-    new_blog = blog_model.Blog(title=request.title, body=request.body, user_id=request.user_id)
-    db.add(new_blog)
-    db.commit()
-    db.refresh(new_blog)
-    return new_blog
+    return blog_repository.create_blog(request, db)
 
 @router.get('/blog',tags=['blogs'])
 def get_all(db : Session = Depends(get_db), current_user: schemas.User = Depends(oauth2.get_current_user)):
@@ -35,20 +28,11 @@ def get_one(id : int, response = Response,  db : Session = Depends(get_db), curr
 
 @router.delete('/blog/{id}', status_code=status.HTTP_204_NO_CONTENT,tags=['blogs'])
 def delete(id : int, db : Session = Depends(get_db), current_user: schemas.User = Depends(oauth2.get_current_user)):
-    blog = db.query(blog_model.Blog).filter(blog_model.Blog.id == id).delete(synchronize_session=False)
-    db.commit()
-    if not blog:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'blog with id {id} not found')
-    return {'message' : f'deleted blog with id {id}'}
+    return blog_repository.delete_blog(id, db)
 
 @router.put('/blog/{id}', status_code=status.HTTP_202_ACCEPTED,tags=['blogs'])
 def update(id : int, request : schemas.Blog, db : Session = Depends(get_db), current_user: schemas.User = Depends(oauth2.get_current_user)): 
-   blog =  db.query(blog_model.Blog).filter(blog_model.Blog.id == id)
-   if not blog.first():
-       raise HTTPException (status_code= status.HTTP_404_NOT_FOUND, detail= f'{id} not found')   
-   blog.update(request.dict())
-   db.commit()
-   return 'updated'
+    return blog_repository.edit_blog(id, request, db)
 
 
 
